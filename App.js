@@ -26,10 +26,9 @@ const ocultarTeclado =()=>{
 
 const styles = StyleSheet.create({
   app: {
-    flex: 1,
     backgroundColor: 'rgb(71, 149, 212)',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flex: 1,
+    justifyContent: 'center'
   },
   contenido: {
     marginHorizontal:'2.5%'
