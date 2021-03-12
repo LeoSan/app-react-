@@ -1,20 +1,23 @@
 import React, {useState} from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableWithoutFeedback, Animated, ScrollView  } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableWithoutFeedback, Animated, ScrollView, Alert  } from 'react-native';
 import {Picker} from '@react-native-picker/picker';
 
-export default function Formulario() {
+export default function Formulario({ busqueda, setBusqueda, setConsultar }) {
 
 //Debemos crear un useState para la animacion: 
-const [ animacionboton ] = useState(new Animated.Value(1));
+const [ animacionboton ] = useState( new Animated.Value(1) );
+
+//Extraemos los objetos que vienen de APP distroccion 
+
+const {pais, ciudad} = busqueda;
 
 
 //Definimos nuestros metodos interactivos 
 
-const animacionEntrada = ()=>{
+const animacionEntrada = () => {
     console.log("entrada");
     Animated.spring( animacionboton, {
-        toValue:.9,
-        duration: 2000,
+        toValue:.75,
         useNativeDriver:true //Add this line
     } ).start();
 }
@@ -22,11 +25,42 @@ const animacionEntrada = ()=>{
 const animacionSalida = ()=>{
     console.log("salida");
 
+    Animated.spring( animacionboton, {
+        toValue:1,
+        friction:4,
+        tension:30,
+        useNativeDriver:true //Add this line
+    } ).start();    
+
 }
 
-const estiloAnimacion =()=>{
+//Metodo de la animacion para hacer la animacion
 
-    transform:[{scale: animacionboton}]
+const estiloAnimacion =()=>{
+    transform: [{ scale: animacionboton }] 
+}
+
+
+//Metodo de validacion 
+
+const validaDatos = () =>{
+
+    if(pais.trim() === '' || ciudad.trim() === '') {
+        mostrarAlerta();
+        return;
+    }
+    //Cambiamos el state para que el useEffect funcione
+    setConsultar(true);
+}
+
+const mostrarAlerta = ()=>{
+    Alert.alert(
+        'Error',
+        'Agrega una ciudad y pais para consultar el clima',
+        [{text:'Entendido'}]
+
+    );
+
 }
 
   return (
@@ -34,29 +68,35 @@ const estiloAnimacion =()=>{
        
         <ScrollView>
             <View style={styles.contInput}>
-                <TextInput 
-                    style={styles.input}
-                    placeholder='ciudad'
-                    placeholderTextColor='black'
-                />
+                    <TextInput  
+                        value={ciudad}
+                        style={styles.input}
+                        onChangeText={ ciudad => setBusqueda({ ...busqueda, ciudad }) }
+                        placeholder="Ciudad"
+                        placeholderTextColor="#666"
+                    />
             </View>    
 
             <View style={styles.contInput}>
                 <Picker
+                    itemStyle={{textAlign:'center',marginLeft:20}}
+                    selectedValue={pais}
                     style={styles.select}
+                    onValueChange={ pais => setBusqueda({ ...busqueda, pais }) }
                 >
-                    <Picker.Item label="- Seleccione un Pais-"       value="" /> 
-                    <Picker.Item label="- Argentina -"       value="AR" />                                                   
-                    <Picker.Item label="- Colombia -"        value="CO" />                                                   
-                    <Picker.Item label="- México -"          value="MX" />                                       
-                    <Picker.Item label="- USA-"              value="US" />                                       
+                    <Picker.Item label="-- Seleccione un Pais-"       value="" /> 
+                    <Picker.Item label="-- Argentina --"              value="AR" />                                                   
+                    <Picker.Item label="-- Colombia --"               value="CO" />                                                   
+                    <Picker.Item label="-- México --"                 value="MX" />                                       
+                    <Picker.Item label="-- USA --"                    value="US" />                                       
                 </Picker>
 
             </View>
 
                 <TouchableWithoutFeedback 
-                    onPressIn  = { () => animacionEntrada()  }
+                    onPressIn  = { () =>  animacionEntrada()  }
                     onPressOut = { () =>  animacionSalida() }
+                    onPress = {    () =>  validaDatos() }
                 >
                     
                     <Animated.View
@@ -105,6 +145,7 @@ const styles = StyleSheet.create({
     select:{
         height:70, 
         backgroundColor:'#FFF',
+        
     }, 
     contInput:{
         borderColor: "black",
